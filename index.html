@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>GradeCompass - Single File Grade Calculator</title>
+		<meta
+			name="description"
+			content="GradeCompass single-file edition: calculate grades with vanilla HTML, CSS, and JavaScript."
+		/>
+		<style>
+			:root {
+				color-scheme: light;
+				font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+				line-height: 1.5;
+				--background: #f7f8fb;
+				--surface: #ffffff;
+				--surface-muted: #f0f2f7;
+				--text: #0f172a;
+				--text-muted: #5b6474;
+				--primary: #2563eb;
+				--primary-strong: #1d4ed8;
+				--border: #e2e8f0;
+				--success: #16a34a;
+				--shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+				--radius: 16px;
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				background: var(--background);
+				color: var(--text);
+				padding: 32px 20px 60px;
+			}
+
+			.app {
+				max-width: 1100px;
+				margin: 0 auto;
+				display: flex;
+				flex-direction: column;
+				gap: 32px;
+			}
+
+			header {
+				background: var(--surface);
+				border-radius: var(--radius);
+				padding: 28px 32px;
+				box-shadow: var(--shadow);
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+
+			header h1 {
+				font-size: 2rem;
+				letter-spacing: -0.02em;
+			}
+
+			header p {
+				color: var(--text-muted);
+				max-width: 720px;
+			}
+
+			section {
+				background: var(--surface);
+				border-radius: var(--radius);
+				padding: 28px 32px;
+				box-shadow: var(--shadow);
+			}
+
+			.section-title {
+				display: flex;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 16px;
+				margin-bottom: 20px;
+			}
+
+			.section-title h2 {
+				font-size: 1.4rem;
+			}
+
+			.section-title span {
+				color: var(--text-muted);
+				font-size: 0.95rem;
+			}
+
+			.summary-grid {
+				display: grid;
+				gap: 16px;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				margin-bottom: 16px;
+			}
+
+			.summary-card {
+				background: var(--surface-muted);
+				border-radius: 14px;
+				padding: 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+			}
+
+			.summary-card .label {
+				font-size: 0.9rem;
+				color: var(--text-muted);
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+			}
+
+			.summary-card .value {
+				font-size: 1.6rem;
+				font-weight: 600;
+			}
+
+			.grade-pill {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 6px 12px;
+				border-radius: 999px;
+				background: #e0f2fe;
+				color: #075985;
+				font-size: 0.95rem;
+				font-weight: 600;
+			}
+
+			.status-text {
+				color: var(--text-muted);
+				margin-bottom: 20px;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+
+			thead th {
+				text-align: left;
+				font-size: 0.85rem;
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+				color: var(--text-muted);
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--border);
+			}
+
+			tbody td {
+				padding: 12px 0;
+				border-bottom: 1px solid var(--border);
+			}
+
+			input[type='text'],
+			input[type='number'] {
+				width: 100%;
+				padding: 8px 10px;
+				border-radius: 10px;
+				border: 1px solid var(--border);
+				font-size: 0.95rem;
+				transition: border-color 0.2s ease;
+			}
+
+			input[type='text']:focus,
+			input[type='number']:focus {
+				outline: none;
+				border-color: var(--primary);
+			}
+
+			button {
+				border: none;
+				border-radius: 999px;
+				padding: 10px 18px;
+				font-size: 0.95rem;
+				font-weight: 600;
+				cursor: pointer;
+				transition:
+					transform 0.2s ease,
+					box-shadow 0.2s ease;
+			}
+
+			button:active {
+				transform: translateY(1px);
+			}
+
+			.primary-button {
+				background: var(--primary);
+				color: #fff;
+				box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+			}
+
+			.primary-button:hover {
+				background: var(--primary-strong);
+			}
+
+			.ghost-button {
+				background: transparent;
+				color: var(--text);
+				border: 1px solid var(--border);
+			}
+
+			.remove-button {
+				background: transparent;
+				color: var(--text-muted);
+				border: none;
+				font-size: 0.85rem;
+				padding: 4px 6px;
+				text-decoration: underline;
+				cursor: pointer;
+			}
+
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 12px;
+				margin-top: 20px;
+			}
+
+			.details-grid {
+				display: grid;
+				gap: 20px;
+				grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+				margin-top: 20px;
+			}
+
+			.detail-card {
+				background: var(--surface-muted);
+				border-radius: 14px;
+				padding: 16px;
+			}
+
+			.detail-card h3 {
+				font-size: 1rem;
+				margin-bottom: 8px;
+			}
+
+			.detail-card p {
+				color: var(--text-muted);
+				font-size: 0.95rem;
+			}
+
+			footer {
+				text-align: center;
+				color: var(--text-muted);
+				font-size: 0.85rem;
+				line-height: 1.6;
+			}
+
+			@media (max-width: 720px) {
+				section,
+				header {
+					padding: 24px;
+				}
+
+				.section-title {
+					flex-direction: column;
+					align-items: flex-start;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="app">
+			<header>
+				<h1>GradeCompass Single-File Edition</h1>
+				<p>
+					This lightweight GradeCompass experience runs entirely in your browser with vanilla HTML,
+					CSS, and JavaScript. Add assignments below to calculate your current grade.
+				</p>
+				<div class="grade-pill" id="grade-pill">Ready to calculate</div>
+			</header>
+
+			<section>
+				<div class="section-title">
+					<h2>Grade calculator</h2>
+					<span>All data is stored locally in this browser.</span>
+				</div>
+
+				<div class="summary-grid">
+					<div class="summary-card">
+						<span class="label">Current percentage</span>
+						<span class="value" id="grade-percentage">0%</span>
+					</div>
+					<div class="summary-card">
+						<span class="label">Letter grade</span>
+						<span class="value" id="grade-letter">—</span>
+					</div>
+					<div class="summary-card">
+						<span class="label">Points earned</span>
+						<span class="value" id="total-earned">0</span>
+					</div>
+					<div class="summary-card">
+						<span class="label">Points possible</span>
+						<span class="value" id="total-possible">0</span>
+					</div>
+				</div>
+
+				<p class="status-text" id="grade-status">Add assignments to calculate your grade.</p>
+
+				<table aria-label="Assignment list">
+					<thead>
+						<tr>
+							<th style="width: 45%">Assignment</th>
+							<th style="width: 20%">Score</th>
+							<th style="width: 20%">Out of</th>
+							<th style="width: 15%"></th>
+						</tr>
+					</thead>
+					<tbody id="assignment-body"></tbody>
+				</table>
+
+				<div class="actions">
+					<button class="primary-button" id="add-assignment">Add assignment</button>
+					<button class="ghost-button" id="reset-assignments">Reset list</button>
+				</div>
+			</section>
+
+			<section>
+				<div class="section-title">
+					<h2>How it works</h2>
+					<span>Simple math, no logins.</span>
+				</div>
+				<div class="details-grid">
+					<div class="detail-card">
+						<h3>Weighted totals</h3>
+						<p>
+							GradeCompass adds up the points you earned and divides them by the total points
+							possible. It does not upload your data anywhere.
+						</p>
+					</div>
+					<div class="detail-card">
+						<h3>Local storage</h3>
+						<p>
+							Assignments are saved to this device only. Clear your browser data if you want a fresh
+							start.
+						</p>
+					</div>
+					<div class="detail-card">
+						<h3>Single file</h3>
+						<p>
+							Everything you need is bundled in this one HTML document with inline styles and
+							JavaScript.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<footer>
+				<p>
+					StudentVUE is a registered trademark of Edupoint Educational Systems LLC. GradeCompass is
+					not affiliated with or endorsed by Edupoint Educational Systems LLC.
+				</p>
+				<p>
+					Built with vanilla HTML, CSS, and JavaScript. Save this file locally and open it anytime.
+				</p>
+			</footer>
+		</div>
+
+		<script>
+			const assignmentBody = document.getElementById('assignment-body');
+			const gradePercentage = document.getElementById('grade-percentage');
+			const gradeLetter = document.getElementById('grade-letter');
+			const totalEarned = document.getElementById('total-earned');
+			const totalPossible = document.getElementById('total-possible');
+			const gradeStatus = document.getElementById('grade-status');
+			const gradePill = document.getElementById('grade-pill');
+			const storageKey = 'gradecompass.assignments';
+
+			const gradeScale = [
+				{ min: 93, letter: 'A' },
+				{ min: 90, letter: 'A-' },
+				{ min: 87, letter: 'B+' },
+				{ min: 83, letter: 'B' },
+				{ min: 80, letter: 'B-' },
+				{ min: 77, letter: 'C+' },
+				{ min: 73, letter: 'C' },
+				{ min: 70, letter: 'C-' },
+				{ min: 67, letter: 'D+' },
+				{ min: 63, letter: 'D' },
+				{ min: 60, letter: 'D-' },
+				{ min: 0, letter: 'F' }
+			];
+
+			const defaultAssignments = [
+				{ name: 'Quiz 1', earned: 8, possible: 10 },
+				{ name: 'Homework 2', earned: 15, possible: 20 },
+				{ name: 'Lab', earned: 18, possible: 20 }
+			];
+
+			const loadAssignments = () => {
+				try {
+					const stored = JSON.parse(localStorage.getItem(storageKey));
+					if (Array.isArray(stored) && stored.length > 0) {
+						return stored;
+					}
+				} catch (error) {
+					console.warn('Unable to load stored assignments', error);
+				}
+				return [...defaultAssignments];
+			};
+
+			let assignments = loadAssignments();
+
+			const formatNumber = (value) => {
+				if (!Number.isFinite(value)) return '0';
+				return value % 1 === 0 ? value.toString() : value.toFixed(2);
+			};
+
+			const sanitizeNumber = (value) => {
+				const parsed = Number.parseFloat(value);
+				return Number.isFinite(parsed) ? parsed : 0;
+			};
+
+			const saveAssignments = () => {
+				localStorage.setItem(storageKey, JSON.stringify(assignments));
+			};
+
+			const updateTotals = () => {
+				let earned = 0;
+				let possible = 0;
+
+				assignments.forEach((assignment) => {
+					earned += sanitizeNumber(assignment.earned);
+					possible += sanitizeNumber(assignment.possible);
+				});
+
+				const percentage = possible > 0 ? (earned / possible) * 100 : 0;
+				const grade = gradeScale.find((entry) => percentage >= entry.min) ?? gradeScale.at(-1);
+
+				totalEarned.textContent = formatNumber(earned);
+				totalPossible.textContent = formatNumber(possible);
+				gradePercentage.textContent = `${percentage.toFixed(1)}%`;
+				gradeLetter.textContent = grade?.letter ?? '—';
+
+				if (possible === 0) {
+					gradeStatus.textContent = 'Add assignments to calculate your grade.';
+					gradePill.textContent = 'Ready to calculate';
+				} else {
+					gradeStatus.textContent = `Based on ${formatNumber(earned)} out of ${formatNumber(
+						possible
+					)} points.`;
+					gradePill.textContent = `Current grade: ${percentage.toFixed(1)}% (${grade?.letter ?? '—'})`;
+				}
+			};
+
+			const handleInput = (index, field, value) => {
+				assignments[index][field] = field === 'name' ? value : sanitizeNumber(value);
+				saveAssignments();
+				updateTotals();
+			};
+
+			const removeAssignment = (index) => {
+				assignments.splice(index, 1);
+				saveAssignments();
+				renderAssignments();
+			};
+
+			const renderAssignments = () => {
+				assignmentBody.innerHTML = '';
+				assignments.forEach((assignment, index) => {
+					const row = document.createElement('tr');
+					row.innerHTML = `
+<td>
+<input type="text" aria-label="Assignment name" value="${assignment.name ?? ''}" />
+</td>
+<td>
+<input
+type="number"
+min="0"
+step="0.01"
+aria-label="Points earned"
+value="${assignment.earned ?? 0}"
+/>
+</td>
+<td>
+<input
+type="number"
+min="0"
+step="0.01"
+aria-label="Points possible"
+value="${assignment.possible ?? 0}"
+/>
+</td>
+<td>
+<button class="remove-button" type="button">Remove</button>
+</td>
+`;
+
+					const [nameInput, earnedInput, possibleInput] = row.querySelectorAll('input');
+					const removeButton = row.querySelector('button');
+
+					nameInput.addEventListener('input', (event) =>
+						handleInput(index, 'name', event.target.value)
+					);
+					earnedInput.addEventListener('input', (event) =>
+						handleInput(index, 'earned', event.target.value)
+					);
+					possibleInput.addEventListener('input', (event) =>
+						handleInput(index, 'possible', event.target.value)
+					);
+					removeButton.addEventListener('click', () => removeAssignment(index));
+
+					assignmentBody.appendChild(row);
+				});
+				updateTotals();
+			};
+
+			document.getElementById('add-assignment').addEventListener('click', () => {
+				assignments.push({ name: '', earned: 0, possible: 0 });
+				saveAssignments();
+				renderAssignments();
+			});
+
+			document.getElementById('reset-assignments').addEventListener('click', () => {
+				const shouldReset = window.confirm('Reset the assignment list to the defaults?');
+				if (!shouldReset) return;
+				assignments = [...defaultAssignments];
+				saveAssignments();
+				renderAssignments();
+			});
+
+			renderAssignments();
+		</script>
+	</body>
+</html>
