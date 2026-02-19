@@ -6,9 +6,9 @@ An advanced grade calculator designed to interface with StudentVUE®.
 
 ## Single-file vanilla edition
 
-Open [`index.html`](./index.html) directly in a browser to use the standalone vanilla HTML/CSS/JS
-grade calculator. The file includes inline styles and script logic and stores assignment data in
-local browser storage.
+Open [`index.html`](./index.html) directly in a browser to use the fully inlined GradeCompass
+experience. The file contains the prerendered HTML, compiled CSS, bundled JavaScript, and embedded
+assets so the full app runs from a single file without external dependencies.
 
 ## Developing
 
