@@ -4,6 +4,12 @@ An advanced grade calculator designed to interface with StudentVUE®.
 
 <sub>StudentVUE is a registered trademark of Edupoint Educational Systems LLC. GradeCompass is not affiliated with or endorsed by Edupoint Educational Systems LLC.</sub>
 
+## Single-file vanilla edition
+
+Open [`index.html`](./index.html) directly in a browser to use the fully inlined GradeCompass
+experience. The file contains the prerendered HTML, compiled CSS, bundled JavaScript, and embedded
+assets so the full app runs from a single file without external dependencies.
+
 ## Developing
 
 Make sure to have [Bun](https://bun.sh) installed, then run `bun install` to install dependencies.
